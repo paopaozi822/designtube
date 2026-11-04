@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DesignTube</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff; --fg:#0f0f0f; --fg2:#606060; --fg3:#909090;
+  --hover:#f2f2f2; --chip:#f2f2f2; --chip-on:#e5e5e5; --line:#e5e5e5; --input-line:#d3d3d3; --btn:#f8f8f8;
+  --accent:#f26522; --badge:rgba(0,0,0,.72);
+  --font:"Roboto","Noto Sans SC",Arial,sans-serif;
+}
+html.dark{
+  --bg:#0f0f0f; --fg:#f1f1f1; --fg2:#aaa; --fg3:#717171;
+  --hover:#272727; --chip:#272727; --chip-on:#3f3f3f; --line:#3f3f3f; --input-line:#303030; --btn:#222;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+a{color:inherit;text-decoration:none}
+svg.i{width:24px;height:24px;fill:currentColor;flex:none;display:block}
+
+/* masthead */
+.mast{position:sticky;top:0;z-index:30;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--bg)}
+.mast .l{display:flex;align-items:center;gap:16px;min-width:200px}
+.ib{width:40px;height:40px;border-radius:50%;display:grid;place-items:center}
+.ib:hover{background:var(--hover)}
+.wordmark{font-size:20px;font-weight:700;letter-spacing:-.6px;white-space:nowrap}
+.wordmark span{color:var(--accent)}
+.sb{flex:0 1 652px;display:flex;height:40px;margin:0 40px}
+.sb input{flex:1;min-width:0;border:1px solid var(--input-line);border-right:0;border-radius:40px 0 0 40px;padding:0 16px;font:inherit;font-size:16px;background:var(--bg);color:var(--fg);outline:none}
+.sb input:focus{border-color:#1c62b9;box-shadow:inset 0 1px 2px rgba(0,0,0,.1)}
+.sb input::placeholder{color:var(--fg3)}
+.sb button{width:64px;border:1px solid var(--input-line);border-radius:0 40px 40px 0;background:var(--btn);display:grid;place-items:center}
+.sb button:hover{background:var(--hover)}
+.mast .r{display:flex;gap:8px;min-width:200px;justify-content:flex-end}
+
+/* guide */
+.app{display:flex}
+.guide{width:240px;flex:none;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;padding:12px}
+.gi{display:flex;align-items:center;gap:24px;height:40px;padding:0 12px;border-radius:10px;width:100%;font-size:14px;white-space:nowrap}
+.gi:hover{background:var(--hover)}
+.gi.on{background:var(--hover);font-weight:500}
+.ghr{border:0;border-top:1px solid var(--line);margin:12px 0}
+.gfoot{font-size:12px;line-height:18px;color:var(--fg3);padding:4px 12px}
+body.mini .guide{width:72px;padding:4px}
+body.mini .gi{flex-direction:column;gap:8px;height:74px;justify-content:center;font-size:11px;padding:0}
+body.mini .gi .lbl{line-height:14px}
+body.mini .gmore{display:none}
+
+main{flex:1;min-width:0;padding:8px 24px 48px}
+
+/* filters */
+.fbar{display:flex;gap:12px;align-items:center;padding:12px 0 16px}
+.fbtn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 10px;border-radius:16px;background:var(--chip);font-weight:500}
+.fbtn:hover,.fbtn.open{background:var(--chip-on)}
+.fbtn svg{width:20px;height:20px}
+.fbtn .cnt{background:var(--fg);color:var(--bg);border-radius:9px;font-size:11px;line-height:16px;padding:0 6px;margin-left:2px}
+.fclear{font-size:13px;color:var(--fg2)}
+.fclear:hover{color:var(--fg)}
+.fpanel{display:none;border-bottom:1px solid var(--line);padding:4px 0 20px;margin-bottom:20px}
+.fpanel.open{display:flex;flex-wrap:wrap;gap:8px 40px}
+.fcol{width:140px}
+.fcol h4{font-size:12px;font-weight:500;letter-spacing:.9px;color:var(--fg2);padding:8px 0 12px;border-bottom:1px solid var(--line);margin-bottom:12px;text-transform:uppercase}
+.fopt{display:block;width:100%;color:var(--fg2);font-size:14px;line-height:20px;padding:6px 0}
+.fopt:hover{color:var(--fg)}
+.fopt.on{color:var(--fg);font-weight:500}
+
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:40px 16px}
+@media (max-width:1400px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.grid{grid-template-columns:1fr}}
+.v{display:flex;flex-direction:column;min-width:0}
+.th{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--cbg)}
+.th>svg{position:absolute;inset:0;width:100%;height:100%}
+.th>img,.player>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.v .lnk{display:block;color:inherit}
+.v .more{color:var(--fg2);margin-left:4px;text-decoration:underline;text-underline-offset:2px}
+.v .more:hover{color:var(--fg)}
+.th .cap{position:absolute;left:14px;top:12px;right:14px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--cfg)}
+.th .big{position:absolute;left:14px;bottom:10px;font-size:40px;line-height:1;font-weight:700;letter-spacing:-1.5px;color:var(--cfg)}
+.badge{position:absolute;right:8px;bottom:8px;background:var(--badge);color:#fff;font-size:12px;line-height:18px;font-weight:500;padding:0 4px;border-radius:4px}
+.v:hover .th{border-radius:0;transition:border-radius .2s}
+.v .tt{margin-top:12px;font-size:16px;line-height:22px;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.v .ch{margin-top:4px;color:var(--fg2)}
+.v .mt{color:var(--fg2)}
+.v .mt .sep{margin:0 4px}
+.v .heart{color:var(--accent)}
+.empty{color:var(--fg2);padding:60px 0;text-align:center}
+.ph{font-size:20px;font-weight:700;line-height:28px;margin:8px 0 4px}
+.psub{color:var(--fg2);margin-bottom:20px;max-width:760px}
+
+/* categories */
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.cat{border-radius:12px;padding:20px;background:var(--cbg);color:#0f0f0f;min-height:150px;display:flex;flex-direction:column;justify-content:space-between}
+.cat:hover{filter:brightness(.97)}
+.cat b{font-size:18px;line-height:24px}
+.cat p{font-size:14px;margin-top:6px;opacity:.75}
+.cat span{font-size:12px;font-weight:500;opacity:.7;margin-top:16px}
+
+/* watch */
+body.watchmode .guide{width:72px;padding:4px}
+body.watchmode .gi{flex-direction:column;gap:8px;height:74px;justify-content:center;font-size:11px;padding:0}
+body.watchmode .gmore{display:none}
+body.watchmode main{padding:24px 24px 48px}
+.watch{display:flex;gap:24px;align-items:flex-start;max-width:1754px;margin:0 auto}
+.wl{flex:1;min-width:0}
+.player{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--cbg)}
+.player .cap{display:none}
+.player iframe{background:#000}
+.player>svg{position:absolute;inset:0;width:100%;height:100%}
+.player .cap{position:absolute;left:28px;top:24px;font-size:16px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--cfg)}
+.player .big{position:absolute;left:28px;bottom:20px;font-size:96px;line-height:1;font-weight:700;letter-spacing:-4px;color:var(--cfg)}
+.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.pbtn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:68px;height:68px;border-radius:50%;background:rgba(15,15,15,.7);display:grid;place-items:center;z-index:2;transition:background .15s}
+.pbtn svg{width:36px;height:36px;fill:#fff;margin-left:3px}
+.player:hover .pbtn{background:rgba(15,15,15,.9)}
+.ptop{position:absolute;left:0;right:0;top:0;padding:18px 20px 40px;background:linear-gradient(rgba(0,0,0,.55),transparent);color:#fff;z-index:2;pointer-events:none}
+.ptop b{display:block;font-size:18px;line-height:24px;font-weight:500;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.ptop span{font-size:13px;opacity:.9}
+.pnote{position:absolute;right:16px;bottom:14px;max-width:calc(100% - 32px);color:#fff;font-size:12px;line-height:18px;z-index:2;background:rgba(15,15,15,.75);border-radius:6px;padding:4px 10px}
+.wt{font-size:20px;line-height:28px;font-weight:700;margin-top:12px}
+.wrow{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.wch{flex:1;min-width:200px}
+.wch b{display:block;font-size:16px;font-weight:500;line-height:22px}
+.wch span{font-size:13px;color:var(--fg2)}
+.pill{height:36px;padding:0 16px;border-radius:18px;background:var(--chip);font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.pill:hover{background:var(--chip-on)}
+.pill.on{background:var(--fg);color:var(--bg)}
+.pill svg{width:22px;height:22px}
+.seg{display:inline-flex;height:36px;border-radius:18px;background:var(--chip);overflow:hidden}
+.seg button{display:inline-flex;align-items:center;gap:6px;padding:0 14px;font-weight:500}
+.seg button:hover{background:var(--chip-on)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg svg{width:22px;height:22px}
+.seg .on svg{fill:#065fd4}
+html.dark .seg .on svg{fill:#3ea6ff}
+.subsel{position:relative;display:inline-flex;align-items:center;height:36px;border-radius:18px;background:var(--chip);padding:0 12px 0 10px;gap:6px;font-weight:500}
+.subsel:hover{background:var(--chip-on)}
+.subsel svg{width:22px;height:22px}
+.subsel select{appearance:none;-webkit-appearance:none;border:0;background:none;font:inherit;color:inherit;cursor:pointer;padding-right:14px;outline:none}
+.subsel::after{content:"";position:absolute;right:12px;top:50%;margin-top:-2px;border:4px solid transparent;border-top-color:currentColor}
+.subsel select option{color:#0f0f0f}
+.player #ytp,.player #ytp iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.desc{background:var(--chip);border-radius:12px;padding:12px;margin-top:12px;line-height:22px}
+.desc .dm{font-weight:500}
+.desc .why{color:var(--fg2);margin-top:12px}
+.desc .think{margin-top:12px}
+.desc .think b{font-weight:500}
+.dtags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.dtags button{height:32px;padding:0 12px;border-radius:8px;background:var(--bg);font-weight:500;font-size:14px}
+.dtags button:hover{background:var(--chip-on)}
+.wr{width:402px;flex:none}
+.mv{display:flex;gap:8px;margin-bottom:8px;width:100%;text-align:left}
+.mv .th{width:168px;flex:none;border-radius:8px}
+.mv .th .cap{font-size:9px;left:8px;top:6px}
+.mv .th .big{font-size:22px;left:8px;bottom:6px;letter-spacing:-.5px}
+.mv .badge{right:4px;bottom:4px}
+.mv .tt{font-size:14px;line-height:20px;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mv .ch,.mv .mt{font-size:12px;line-height:18px;color:var(--fg2);margin-top:2px}
+.mv:hover .tt{color:var(--fg)}
+@media (max-width:1100px){.watch{flex-direction:column}.wr{width:100%}}
+
+/* settings / modal */
+.set{max-width:640px}
+.set .row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line);gap:16px}
+.set .row p{color:var(--fg2);font-size:13px}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:24px}
+.scrim.open{display:flex}
+.dlg{background:var(--bg);border-radius:12px;max-width:560px;width:100%;padding:24px;line-height:22px;max-height:100%;overflow:auto}
+.dlg h2{font-size:20px;margin-bottom:12px}
+.dlg p{color:var(--fg2);margin-bottom:10px}
+.dlg kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px}
+.toast{position:fixed;left:24px;bottom:24px;background:#0f0f0f;color:#fff;padding:12px 16px;border-radius:8px;opacity:0;transition:.2s;pointer-events:none;z-index:60}
+html.dark .toast{background:#f1f1f1;color:#0f0f0f}
+.toast.show{opacity:1}
+
+@media (max-width:800px){
+  .guide{display:none}
+  body.mini .guide{display:block}
+  .sb{margin:0 8px}
+  .mast .l,.mast .r{min-width:0}
+  .wordmark{font-size:17px}
+  main{padding:8px 12px 40px}
+}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="l">
+    <button class="ib" id="menu" aria-label="菜单"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <a class="wordmark" href="#home">Design<span>Tube</span></a>
+  </div>
+  <form class="sb" id="sform" role="search">
+    <input id="q" placeholder="搜索" autocomplete="off" aria-label="搜索">
+    <button aria-label="搜索"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button>
+  </form>
+  <div class="r">
+    <button class="ib" id="help" aria-label="关于"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg></button>
+    <button class="ib" id="dark" aria-label="深色模式"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg></button>
+  </div>
+</header>
+<div class="app">
+  <nav class="guide" id="guide"></nav>
+  <main id="main"></main>
+</div>
+<div class="scrim" id="scrim"><div class="dlg" id="dlg"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+/* ---------- channels ---------- */
+const CH = [
+  {id:"behavior", name:"设计与行为", en:"Behavior", c:"#c8412b", bg:"#f2d9cf",
+   q:"设计如何影响人的行为？",
+   d:"门把手、通知、默认选项……每一个设计决定都在悄悄替人做决定。这里收录关于可供性、情绪、习惯与操控的讲述。",
+   t:"你最近一次“被设计推着走”是什么时候？那个设计用了什么手段：默认值、稀缺感、还是摩擦力？"},
+  {id:"era", name:"时代与审美", en:"Aesthetics & Era", c:"#b07a12", bg:"#f1e3bf",
+   q:"为什么某种审美会在特定时代流行？",
+   d:"从包豪斯、拟物到扁平，再到 Y2K 回潮与“一切都长得一样”。审美从来不是孤立的品味，而是技术、经济与集体情绪的投影。",
+   t:"挑一个你身边正在流行的风格，试着说出它背后的三个推力：技术条件、社会情绪、传播媒介。"},
+  {id:"tech", name:"技术与视觉语言", en:"Technology & Visual Language", c:"#2f5fa8", bg:"#d6e0ef",
+   q:"技术变革如何改变视觉语言？",
+   d:"鼠标、像素图标、触屏、生成式模型：每一次介质变化都会重写“图像应该长什么样”。",
+   t:"Susan Kare 的图标受限于 32×32 像素，今天的限制是什么？限制如何塑造了风格？"},
+  {id:"brand", name:"品牌与辨识度", en:"Brand & Identity", c:"#1f7a55", bg:"#d3e8dc",
+   q:"一个品牌如何建立自己的辨识度？",
+   d:"Saul Bass 推销贝尔标志、Paul Rand 只给一个方案、乔布斯说营销关乎价值观。辨识度来自一致的信念，而不只是 logo。",
+   t:"把一个品牌的 logo 遮住，你还能认出它吗？是什么让你认出来的？"},
+  {id:"timeless", name:"跨越时代", en:"Timeless", c:"#5b3f8c", bg:"#e1d9ee",
+   q:"为什么有些设计能够跨越时代？",
+   d:"Rams 的十条原则、Vignelli 的“设计是一体的”、Eames 的《十的次方》。经典之所以经典，往往是因为它解决的是不变的问题。",
+   t:"列出一件你用了十年以上还不觉得过时的东西。它“少”在哪里？"},
+  {id:"talks", name:"设计师演讲", en:"Designers on Stage", c:"#141412", bg:"#e4e0d6",
+   q:"大师们在台上讲了什么？",
+   d:"TED 与各大设计会议上被反复转发的演讲：Don Norman、Paula Scher、Tony Fadell、Sagmeister、Bierut、Maeda……",
+   t:"看完一场演讲后，只写下一句你会带走的话。"},
+  {id:"jobs", name:"乔布斯", en:"Steve Jobs", c:"#141412", bg:"#d9d4c7",
+   q:"乔布斯如何谈设计与品味？",
+   d:"从 1983 年阿斯彭国际设计大会，到 1997 年回归苹果、2005 年斯坦福演讲、2007 年 iPhone 发布。",
+   t:"乔布斯常说从用户体验出发倒推技术。你手上的项目是从哪一端开始的？"},
+  {id:"ai", name:"AI 与审美", en:"AI & Taste", c:"#0e7c86", bg:"#cfe8e8",
+   q:"AI 时代，审美和品味还意味着什么？",
+   d:"当生成一张图、一个界面只要几秒，“平均值审美”无处不在。设计师的判断力、取舍和品味反而成了稀缺品。",
+   t:"AI 默认给你的设计，像不像“所有人的平均值”？你会删掉哪一部分，让它更像你？"},
+];
+const CHM = Object.fromEntries(CH.map(c=>[c.id,c]));
+
+/* ---------- videos (IDs verified via web search, 2026-11-04) ---------- */
+const V = [
+ // Jobs
+ {id:"jiHZqamCD8c", t:"Steve Jobs – 2005 Stanford Commencement Address", cn:"斯坦福毕业演讲", who:"Steve Jobs", ch:"Steve Jobs Archive", y:2005, k:"演讲", tags:["jobs","timeless"],
+  n:"“连接人生的点”——退学后旁听书法课，十年后成了 Mac 上的多种字体与比例间距。最适合解释“审美积累如何在很久以后变成产品”的一段。"},
+ {id:"t9HmOz8H0qI", t:"A 28-year-old Steve Jobs at the 1983 International Design Conference in Aspen", cn:"1983 阿斯彭国际设计大会", who:"Steve Jobs", ch:"Steve Jobs Archive", y:1983, k:"演讲", tags:["jobs","tech"],
+  n:"28 岁的乔布斯对着一屋子设计师，谈个人电脑将成为一种新媒介，并呼吁设计师参与进来。四十多年前对“会对话的机器”的想象，今天看格外有意思。"},
+ {id:"QGIUa2sSYFI", t:"Steve Jobs – Start with the Customer Experience (WWDC 1997)", cn:"从用户体验出发，倒推技术", who:"Steve Jobs", ch:"WWDC 1997", y:1997, k:"片段", tags:["jobs","behavior"],
+  n:"被台下开发者当面质疑后，乔布斯停顿片刻，给出那句名言：你必须从用户体验开始，再倒推到技术。"},
+ {id:"hzl7IImDWVw", t:"Apple, Think Different – 1997 Internal Meeting", cn:"“营销关乎价值观”内部讲话", who:"Steve Jobs", ch:"Apple 内部会议", y:1997, k:"片段", tags:["jobs","brand"],
+  n:"Think Different 广告发布前的内部讲话：在嘈杂的世界里，品牌不能靠功能参数让人记住，而要说清楚自己相信什么。品牌课必看。"},
+ {id:"lahX_ARGTqA", t:"The only problem with Microsoft is they have no taste", cn:"“微软的问题是没有品味”", who:"Steve Jobs", ch:"Triumph of the Nerds", y:1996, k:"片段", tags:["jobs","ai"],
+  n:"出自纪录片《书呆子的胜利》。“品味”这个词在 AI 时代又被频繁提起，回看这段原话很有意思。"},
+ {id:"CR5cPqPkueQ", t:"Steve Jobs interviewed about Paul Rand (1993)", cn:"乔布斯谈 Paul Rand 与 NeXT 标志", who:"Steve Jobs", ch:"访谈", y:1993, k:"访谈", tags:["jobs","brand"],
+  n:"Paul Rand 只给了一个方案，乔布斯付了十万美元。谈专业判断、谈为什么好的设计师值得信任。"},
+ {id:"VQKMoT-6XSg", t:"iPhone 1 – Steve Jobs Macworld Keynote 2007 (Full)", cn:"2007 初代 iPhone 发布会全程", who:"Steve Jobs", ch:"Macworld 2007", y:2007, k:"长片", tags:["jobs","tech"],
+  n:"“一部 iPod、一部电话、一个上网设备”。触屏如何取代实体键盘、拟物界面如何教会人用新设备，一次看全。"},
+
+ // Designers on stage
+ {id:"RlQEoJaLQRA", t:"The three ways that good design makes you happy", cn:"好设计让人快乐的三种方式", who:"Don Norman", ch:"TED", y:2003, k:"TED", tags:["talks","behavior"],
+  n:"《设计心理学》作者把目光从可用性转向情绪：本能、行为、反思三个层次，以及“好看的东西更好用”。"},
+ {id:"atn22-bmTPU", t:"Paula Scher: Great design is serious (not solemn)", cn:"好设计是认真的，而不是严肃的", who:"Paula Scher", ch:"TED", y:2008, k:"TED", tags:["talks","brand"],
+  n:"Pentagram 合伙人、花旗银行标志的设计者，回顾职业生涯里“认真”与“庄重”的区别，以及她开始真正玩起来的时刻。"},
+ {id:"9uOMectkCCs", t:"The first secret of great design", cn:"伟大设计的第一个秘密：注意到", who:"Tony Fadell", ch:"TED", y:2015, k:"TED", tags:["talks","behavior"],
+  n:"iPod 与 Nest 的缔造者谈“习惯化”：人会很快接受“事情就是这样”。设计师的工作是重新看见那些被习惯藏起来的问题。"},
+ {id:"sypWzCeI63E", t:"Why Beauty Matters", cn:"为什么美很重要", who:"Stefan Sagmeister", ch:"DLD NYC", y:2014, k:"演讲", tags:["talks","timeless","era"],
+  n:"Sagmeister 论证美与功能是一体的，并追问现代主义为何让“美”变成了一个尴尬的词。"},
+ {id:"YsA_JTeHJ6A", t:"How to design a library that makes kids want to read", cn:"如何设计一座让孩子想读书的图书馆", who:"Michael Bierut", ch:"TED", k:"TED", tags:["talks","behavior","brand"],
+  n:"一个为公立学校图书馆做 logo 的小项目，变成了持续多年的热情投入。设计如何真正改变一个空间里人的行为。"},
+ {id:"WAuDCOl9qrk", t:"How art, technology and design inform creative leaders", cn:"艺术、技术与设计如何塑造创意领导者", who:"John Maeda", ch:"TED", y:2012, k:"TED", tags:["talks","tech"],
+  n:"时任 RISD 校长的 Maeda 横跨编程、设计与艺术的一生，幽默又真诚。"},
+ {id:"xHsXfmHaBUo", t:"John Maeda: Designing for simplicity", cn:"为简单而设计", who:"John Maeda", ch:"TED", y:2007, k:"TED", tags:["talks","timeless"],
+  n:"《简单的法则》作者在 MIT 媒体实验室时期的演讲：技术与艺术的交界处如何变得复杂，又如何回到简单。"},
+ {id:"C74amJRp730", t:"How a handful of tech companies control billions of minds every day", cn:"少数科技公司如何每天操控数十亿人的注意力", who:"Tristan Harris", ch:"TED", y:2017, k:"TED", tags:["talks","behavior"],
+  n:"前 Google 设计伦理学家拆解注意力经济：通知、无限滚动、自动播放如何被设计成“劫持”行为。"},
+ {id:"o-W_KgZhG_A", t:"How symbols and brands shape our humanity", cn:"符号与品牌如何塑造人性", who:"Debbie Millman", ch:"TED", k:"TED", tags:["talks","brand","timeless"],
+  n:"《Design Matters》主持人用自己手绘的插图，讲一部从远古符号到现代品牌的人类史。"},
+ {id:"UxQDG6WQT5s", t:"Art in the age of machine intelligence", cn:"机器智能时代的艺术", who:"Refik Anadol", ch:"TED", y:2020, k:"TED", tags:["talks","ai"],
+  n:"把数据当颜料的媒体艺术家：机器的“心智”内部长什么样？AI 审美的一个早期、也最具代表性的方向。"},
+ {id:"PUv66718DII", t:"Bret Victor – Inventing on Principle", cn:"以原则来发明", who:"Bret Victor", ch:"CUSEC", y:2012, k:"长片", tags:["talks","tech"],
+  n:"“创作者需要与作品即时连接”。程序员与设计师圈子里被反复推荐的经典：如何找到你愿意为之奋斗的原则。"},
+ {id:"iVaoDNEZwNg", t:"Design Talk by HARA Kenya: SUBTLE", cn:"原研哉：纤细", who:"原研哉 Kenya Hara", ch:"Japan House", k:"演讲", tags:["talks","timeless"],
+  n:"无印良品艺术总监谈“纤细”这种日本式的感知力。与西方现代主义完全不同的一条“少”的路径。"},
+ {id:"wLb9g_8r-mE", t:"A conversation with Jony Ive", cn:"与 Jony Ive 对谈", who:"Jony Ive × Patrick Collison", ch:"Stripe Sessions", y:2025, k:"对谈", tags:["talks","timeless"],
+  n:"前苹果设计负责人谈手艺、谈为彼此制造东西的文化，以及“用心与爱”在产品里到底体现在哪。"},
+
+ // Behavior
+ {id:"yY96hTb8WgI", t:"It's not you. Bad doors are everywhere.", cn:"不是你笨，是门设计得烂", who:"Joe Posner", ch:"Vox × 99% Invisible", k:"短片", tags:["behavior"],
+  n:"“诺曼门”的科普名片：推还是拉？如果一扇门需要贴说明，那就是坏设计。理解“可供性”的最佳入门。"},
+ {id:"lJUW0iZzAaQ", t:"Dark Patterns: How design seeks to control us", cn:"暗黑模式：设计如何试图控制我们", who:"Sally Woellner", ch:"TEDx", k:"TEDx", tags:["behavior"],
+  n:"每天在用的网站和 App 里，那些专门引导你做“非本意”选择的界面技巧。"},
+ {id:"2L1R7OtJhWs", t:"Tiny surprises for happiness and health", cn:"微习惯：小改变带来大不同", who:"BJ Fogg", ch:"TEDx", k:"TEDx", tags:["behavior"],
+  n:"斯坦福行为设计实验室创始人：行为 = 动机 × 能力 × 提示。几乎所有“上瘾产品”的理论原点。"},
+
+ // Timeless
+ {id:"0fKBhvDjuy0", t:"Powers of Ten™ (1977)", cn:"十的次方", who:"Charles & Ray Eames", ch:"Eames Office", y:1977, k:"短片", tags:["timeless","tech"],
+  n:"从芝加哥湖边的野餐出发，每十秒放大十倍，直到宇宙边缘，再缩回细胞内部。信息设计的永恒范本。"},
+ {id:"xKu2de0yCJI", t:"Saul Bass Pitch Video for Bell System Logo Redesign", cn:"Saul Bass 为贝尔系统提案的标志改版影片", who:"Saul Bass", ch:"AT&T Archives", y:1969, k:"档案", tags:["brand","timeless"],
+  n:"传奇设计师当年给 AT&T 的提案影片：不只是一个 logo，而是卡车、制服、电话亭整套识别系统。品牌系统思维的活教材。"},
+ {id:"AZU5xP5lNHk", t:"Rams – Official Trailer", cn:"纪录片《Rams》预告", who:"Dieter Rams", ch:"Gary Hustwit", y:2018, k:"预告", tags:["timeless"],
+  n:"Hustwit 拍 Dieter Rams 的纪录片。“少，但更好”，以及一位老设计师对消费主义的反思。"},
+ {id:"Nz8m9VMYRpM", t:"Dieter Rams' Principles of Good Design", cn:"Dieter Rams 的好设计原则", who:"Mark Adams (Vitsoe)", ch:"Vitsoe", k:"访谈", tags:["timeless"],
+  n:"Vitsoe 总经理在伦敦总部逐条讲解 Rams 的十条原则，以及 606 置物架为何能卖六十年。"},
+ {id:"anl5D2Bpsbo", t:"Design Is One: Lella & Massimo Vignelli – Trailer", cn:"纪录片《设计是一体的》预告", who:"Lella & Massimo Vignelli", ch:"Kathy Brew & Roberto Guerra", y:2012, k:"预告", tags:["timeless","brand"],
+  n:"“从一把勺子到一座城市”。设计了纽约地铁图与美国航空标识的夫妇，相信一种可以设计一切的语法。"},
+ {id:"iBErp8qvWZg", t:"The genius of the London Tube Map", cn:"伦敦地铁图的天才之处", who:"Michael Bierut", ch:"TED", k:"短片", tags:["timeless","tech"],
+  n:"一张不按真实比例画的地图，为何成了世界上最被模仿的信息设计？Bierut 讲它“意外”的成功。"},
+ {id:"4SS_wwUG8pw", t:"Objectified – Trailer", cn:"纪录片《物化》预告", who:"Jony Ive 等", ch:"Gary Hustwit", y:2009, k:"预告", tags:["timeless","behavior"],
+  n:"Hustwit 设计三部曲第二部，关于工业设计与我们和日常物件的关系。"},
+
+ // Era
+ {id:"X80kSDxF4rg", t:"Helvetica – Trailer", cn:"纪录片《Helvetica》预告", who:"Gary Hustwit", ch:"Gary Hustwit", y:2007, k:"预告", tags:["era","timeless"],
+  n:"一款字体为何能成为一个时代的“空气”：从现代主义的理想到企业标识的默认选项，再到被后现代反叛。"},
+ {id:"wwYZQjgUljA", t:"Bauhaus 100: A BBC Arts Documentary", cn:"包豪斯百年（BBC）", who:"BBC Arts", ch:"BBC", y:2019, k:"纪录片", tags:["era","timeless"],
+  n:"1919 年创立的一所艺术学校，如何决定了此后一百年“现代”长什么样。"},
+ {id:"FZObtaAQY0g", t:"Bauhaus Typography at 100", cn:"包豪斯字体设计百年", who:"Letterform Archive", ch:"Letterform Archive", y:2019, k:"讲座", tags:["era","tech"],
+  n:"带你逛 Letterform Archive 的馆藏，看包豪斯字体设计是什么、为什么重要。"},
+ {id:"jG2iaU-JVhI", t:"Apple Design Part 1: Skeuomorphism", cn:"苹果设计史（一）：拟物时代", who:"视频随笔", ch:"YouTube 视频随笔", k:"随笔", tags:["era","tech"],
+  n:"Scott Forstall 与苹果拟物化时代：皮革、木纹、亚麻布为何在触屏刚出现时是必要的“教学道具”。"},
+ {id:"e31fNccOQSE", t:"Where the \"comic book font\" came from", cn:"“漫画字体”从哪来", who:"Phil Edwards", ch:"Vox", k:"短片", tags:["era","tech"],
+  n:"漫画里的字为什么长那样？一种由漫画文化、印刷技术与手写传统共同塑造的审美。"},
+ {id:"IO7iOzH_2Ig", t:"The Y2K Aesthetic: Why This Retro-Futuristic Look Is Back in Style", cn:"Y2K 美学：复古未来为何回潮", who:"Spoon Graphics", ch:"Spoon Graphics", k:"随笔", tags:["era"],
+  n:"千禧年的金属、透明塑料与气泡字体为何在二十多年后卷土重来。理解“怀旧周期”的一个好样本。"},
+ {id:"-PYRATBonm0", t:"Everything Looks The Same. Here's Why.", cn:"为什么一切都长得一样", who:"视频随笔", ch:"YouTube 视频随笔", k:"随笔", tags:["era","brand"],
+  n:"汽车、咖啡馆、手机、城市新楼……趋同背后的经济与算法逻辑。"},
+ {id:"bO_QiLIMCcI", t:"Why All Graphic Design Looks the Same Now", cn:"为什么现在的平面设计都一个样", who:"视频随笔", ch:"YouTube 视频随笔", y:2026, k:"随笔", tags:["era","ai"],
+  n:"不是设计师变差了，而是曾经孕育激进设计的“地方口音”被全球共享的情绪板抹平了。"},
+
+ // Tech
+ {id:"yJDv-zdhzMY", t:"The Mother of All Demos, presented by Douglas Engelbart (1968)", cn:"“所有演示之母”", who:"Douglas Engelbart", ch:"SRI", y:1968, k:"档案", tags:["tech","timeless"],
+  n:"鼠标、超文本、视频会议、协同编辑，在 1968 年的一场演示里全部亮相。今天所有界面的源头。"},
+ {id:"YEvLKzsEwMw", t:"Susan Kare: Designing Icons & Graphics for the Original Mac", cn:"Susan Kare：为初代 Mac 设计图标", who:"Susan Kare", ch:"访谈", y:1984, k:"访谈", tags:["tech","brand"],
+  n:"一位几乎不懂电脑的艺术史博士，在方格纸上画出了垃圾桶、笑脸 Mac 和最早的电脑字体。"},
+ {id:"4lx9Wtd2P48", t:"Notes on Icons and Design with Susan Kare", cn:"Susan Kare 谈图标与设计", who:"Susan Kare", ch:"Letterform Archive", y:2019, k:"讲座", tags:["tech","timeless"],
+  n:"2019 年 Letterform Archive 讲座，Kare 亲自回顾像素图标背后的思考。"},
+
+ // AI
+ {id:"7cKbPLzNYws", t:"A Conversation with Sam and Jony", cn:"Sam Altman 与 Jony Ive 对谈", who:"Sam Altman × Jony Ive", ch:"OpenAI", k:"对谈", tags:["ai"],
+  n:"AI 时代如何做东西、手艺还意味着什么。最受瞩目的“设计 × AI”对话之一。"},
+ {id:"RJjl1TwyfWM", t:"Tony Fadell: How to build real taste (and why AI makes it matter more)", cn:"如何建立真正的品味（以及 AI 为何让它更重要）", who:"Tony Fadell", ch:"播客访谈", k:"访谈", tags:["ai","talks"],
+  n:"iPod 之父谈品味如何养成，以及为什么在 AI 时代它反而成了门槛。"},
+ {id:"3xfMDWEVQWY", t:"Dylan Field on the \"Permanent Underclass of Zero Taste\"", cn:"Dylan Field：“零品味的永久底层”", who:"Dylan Field", ch:"Sourcery", y:2026, k:"访谈", tags:["ai"],
+  n:"Config 2026 前一天的后台对谈：AI 给出的是统计平均值，人类提供的是突破性的品味。"},
+ {id:"2ZCc4k_IV5w", t:"Config 2026 Keynote with Dylan Field", cn:"Config 2026 主题演讲", who:"Dylan Field", ch:"Figma", y:2026, k:"演讲", tags:["ai","tech"],
+  n:"Figma 对“设计与产品开发正在改变，角色也在改变”的官方回答。"},
+ {id:"w6BJ6lXxB0I", t:"John Maeda's Simple Recipe for Better Products in the Age of AI", cn:"Maeda：AI 时代做出更好产品的简单配方", who:"John Maeda", ch:"讲座", k:"讲座", tags:["ai","timeless"],
+  n:"《简单的法则》作者重访自己的理论：AI 改变了设计工具，也改变了设计要解决的问题。"},
+ {id:"nDI43WVDxHo", t:"Why Every Website Looks Like This", cn:"为什么每个网站都长这样", who:"视频随笔", ch:"YouTube 视频随笔", k:"随笔", tags:["ai","era"],
+  n:"人人都能做网站了，AI 却总给大家同一个。一种设计如何成了整个互联网的默认长相。"},
+ {id:"DLzzhG1ORm8", t:"Why All AI Generated Designs Look The Same", cn:"为什么 AI 生成的设计都一个样", who:"视频随笔", ch:"YouTube 视频随笔", k:"随笔", tags:["ai"],
+  n:"“AI 味”从哪来、什么时候可以接受，以及如何跳出去。"},
+ {id:"g2P4w-FME68", t:"In the Age of AI, Taste Isn't About Aesthetics", cn:"AI 时代，品味不只关乎美学", who:"Marcela (Rootly)", ch:"访谈", k:"访谈", tags:["ai","behavior"],
+  n:"AI 几秒就能生成一个 UI，设计师到底还带来什么？一线产品设计师的回答。"},
+];
+
+
+
+/* ---------- icons ---------- */
+const IC = {"menu": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z\"/></svg>", "search": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z\"/></svg>", "help": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z\"/></svg>", "moon": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z\"/></svg>", "home": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z\"/></svg>", "film": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M21 3H3c-1.11 0-2 .89-2 2v12a2 2 0 0 0 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.11-.9-2-2-2zm0 14H3V5h18v12zm-5-6-7 4V7z\"/></svg>", "thumb": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z\"/></svg>", "history": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z\"/></svg>", "clock": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z\"/></svg>", "grid": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z\"/></svg>", "list": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 10h11v2H3zm0-4h11v2H3zm0 8h7v2H3zm13-1v8l6-4z\"/></svg>", "gear": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z\"/></svg>", "tune": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z\"/></svg>", "play": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 5v14l11-7z\"/></svg>", "thumbo": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M9 21h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.58 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2zM9 9l4.34-4.34L12 10h9v2l-3 7H9V9zM1 9h4v12H1z\"/></svg>", "thumbd": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm0 12-4.34 4.34L12 14H3v-2l3-7h9v10zm4-12h4v12h-4z\"/></svg>", "ext": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z\"/></svg>", "cc": "<svg class=\"i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H5V6h14v12zM7 15h3c.55 0 1-.45 1-1v-1H9.5v.5h-2v-3h2v.5H11v-1c0-.55-.45-1-1-1H7c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1zm7 0h3c.55 0 1-.45 1-1v-1h-1.5v.5h-2v-3h2v.5H18v-1c0-.55-.45-1-1-1h-3c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1z\"/></svg>"};
+const ico = n => IC[n];
+
+/* ---------- storage ---------- */
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let disliked=new Set(store.get("dt_dis",[])), liked=new Set(store.get("dt_likes",[])), later=new Set(store.get("dt_later",[])), hist=store.get("dt_hist",[]);
+const save=()=>{store.set("dt_dis",[...disliked]);store.set("dt_likes",[...liked]);store.set("dt_later",[...later]);store.set("dt_hist",hist)};
+if(store.get("dt_dark",false)) document.documentElement.classList.add("dark");
+
+/* ---------- derived fields ---------- */
+const TYPE_ORDER=["TED","TEDx","演讲","讲座","访谈","对谈","纪录片","档案","短片","随笔","片段","预告","长片"];
+V.forEach((v,i)=>{v.i=i});
+/* 精选顺序: interleave topics so the home feed mixes themes */
+const BEST=(()=>{const q=CH.map(c=>V.filter(v=>v.tags[0]===c.id));const out=[];let k=0;while(out.length<V.length){const b=q[k%q.length];if(b.length)out.push(b.shift());k++}return out})();
+BEST.forEach((v,i)=>{v.b=i});
+const decadeOf=y=>!y?"未知":y>=2020?"2020s":y>=2010?"2010s":y>=2000?"2000s":"更早";
+const uniq=a=>[...new Set(a)];
+
+/* ---------- filters ---------- */
+const F={decade:null,type:null,topic:null,feat:null,sort:"best"};
+const FCOLS=[
+  {key:"decade",h:"年代",opts:[["2020s","2020 年代"],["2010s","2010 年代"],["2000s","2000 年代"],["更早","2000 年以前"]]},
+  {key:"type",h:"类型",opts:TYPE_ORDER.filter(t=>V.some(v=>v.k===t)).map(t=>[t,t])},
+  {key:"topic",h:"主题",opts:CH.map(c=>[c.id,c.name])},
+  {key:"feat",h:"特色",opts:[["classic","经典老片"],["fresh","近两年新片"],["liked","只看收藏"]]},
+  {key:"sort",h:"排序",opts:[["best","精选顺序"],["new","最新优先"],["old","最早优先"],["shuffle","随机打乱"]]},
+];
+let fopen=false, shuffleSeed=Math.random();
+function applyFilters(list){
+  let L=list.filter(v=>
+    (!F.decade||decadeOf(v.y)===F.decade)&&
+    (!F.type||v.k===F.type)&&
+    (!F.topic||v.tags.includes(F.topic))&&
+    (!F.feat||(F.feat==="classic"?(v.y&&v.y<2000):F.feat==="fresh"?(v.y&&v.y>=2025):liked.has(v.id))));
+  if(F.sort==="best")L=[...L].sort((a,b)=>a.b-b.b);
+  else if(F.sort==="new")L=[...L].sort((a,b)=>(b.y||0)-(a.y||0));
+  else if(F.sort==="old")L=[...L].sort((a,b)=>(a.y||9999)-(b.y||9999));
+  else if(F.sort==="shuffle")L=[...L].sort((a,b)=>hash(a.id+shuffleSeed)-hash(b.id+shuffleSeed));
+  return L;
+}
+const activeCount=()=>["decade","type","topic","feat"].filter(k=>F[k]).length+(F.sort!=="best"?1:0);
+function filtersHTML(){
+  const n=activeCount();
+  return `<div class="fbar"><button class="fbtn ${fopen?'open':''}" id="ftoggle">${ico("tune")}筛选${n?`<span class="cnt">${n}</span>`:''}</button>${n?'<button class="fclear" id="fclear">清除筛选</button>':''}</div>
+  <div class="fpanel ${fopen?'open':''}">${FCOLS.map(c=>`<div class="fcol"><h4>${c.h}</h4>${c.opts.map(([val,l])=>`<button class="fopt ${F[c.key]===val?'on':''}" data-fk="${c.key}" data-fv="${esc(val)}">${l}</button>`).join("")}</div>`).join("")}</div>`;
+}
+
+/* ---------- covers ---------- */
+function hash(s){let h=2166136261;for(const ch of String(s)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function motif(v){
+  const c=CHM[v.tags[0]],h=hash(v.id),r=n=>((h>>>(n%24))%1000)/1000,fg=c.c;let s="";
+  const m=h%5;
+  if(m===0){const cx=60+r(1)*200,cy=40+r(3)*100;for(let i=0;i<7;i++)s+=`<circle cx="${cx}" cy="${cy}" r="${18+i*22}" fill="none" stroke="${fg}" stroke-width="${i===2?6:1.2}" opacity="${.85-i*.08}"/>`}
+  else if(m===1){for(let x=0;x<16;x++)for(let y=0;y<9;y++){const on=((h>>((x*3+y)%30))&3)===0;s+=`<circle cx="${12+x*20}" cy="${12+y*20}" r="${on?5:1.6}" fill="${fg}" opacity="${on?.9:.35}"/>`}}
+  else if(m===2){const a=Math.round(r(2)*90-45);s+=`<g transform="rotate(${a} 160 90)">`;for(let i=-10;i<30;i++)s+=`<rect x="${i*14}" y="-120" width="${i%4===0?8:2}" height="420" fill="${fg}" opacity=".5"/>`;s+=`</g>`}
+  else if(m===3){s+=`<rect x="${r(4)*120}" y="${r(5)*60}" width="${90+r(6)*80}" height="${60+r(7)*50}" fill="${fg}" opacity=".85"/><circle cx="${180+r(8)*100}" cy="${50+r(9)*80}" r="${30+r(10)*30}" fill="none" stroke="${fg}" stroke-width="3"/><path d="M${200+r(11)*60} 180 L${260+r(12)*60} ${90+r(13)*40} L320 180Z" fill="${fg}" opacity=".35"/>`}
+  else{for(let i=0;i<9;i++){const y=20+i*18;s+=`<path d="M0 ${y} C 80 ${y-30*r(i)} 160 ${y+30*r(i+5)} 320 ${y}" fill="none" stroke="${fg}" stroke-width="${i===4?5:1.4}" opacity=".7"/>`}}
+  return `<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${s}</svg>`;
+}
+const cvars=v=>{const c=CHM[v.tags[0]];return `--cbg:${c.bg};--cfg:${c.c}`};
+const frame=(id,q)=>`<img src="https://i.ytimg.com/vi/${id}/${q}.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" data-id="${id}" onerror="thumbFail(this)" onload="thumbLoad(this)">`;
+function thumbFail(img){if(!img.dataset.tried){img.dataset.tried=1;img.src=`https://i.ytimg.com/vi/${img.dataset.id}/hqdefault.jpg`}else img.remove()}
+function thumbLoad(img){if(img.naturalWidth<=120&&!img.dataset.tried){thumbFail(img)}}
+function thumb(v,cls="th"){return `<div class="${cls}" style="${cvars(v)}">${motif(v)}<span class="cap">${esc(v.who)}</span><span class="big">${v.y||""}</span>${frame(v.id,"hq2")}${cls==="th"?`<span class="badge">${esc(v.k)}</span>`:''}</div>`}
+function esc(s){return String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
+
+const yt=id=>`https://www.youtube.com/watch?v=${id}`;
+function vcard(v){
+  return `<div class="v"><a class="lnk" href="#w-${v.i}" data-v="${v.id}">${thumb(v)}
+    <div class="tt">${esc(v.cn)}</div></a>
+    <div class="ch">${esc(v.ch)}</div>
+    <div class="mt">${esc(v.who)}${v.y?`<span class="sep">•</span>${v.y}`:''}${liked.has(v.id)?'<span class="sep">•</span><span class="heart">♥</span>':''}</div>
+  </div>`;
+}
+const gridHTML=L=>L.length?`<div class="grid">${L.map(vcard).join("")}</div>`:`<div class="empty">没有符合条件的视频。</div>`;
+
+/* ---------- guide ---------- */
+const NAV=[["home","首页","home"],["longs","长片","film"],["liked","收藏","thumb"],["history","历史记录","history"],["later","稍后观看","clock"],["categories","主题","grid"],["playlists","片单","list"],["settings","设置","gear"]];
+let route="home", watching=null, query="";
+function renderGuide(){
+  $("#guide").innerHTML=NAV.map(([id,l,ic])=>`<button class="gi ${route===id?'on':''}" data-r="${id}">${ico(ic)}<span class="lbl">${l}</span></button>`).join("")+
+  `<div class="gmore"><hr class="ghr"><div class="gfoot">${V.length} 部关于设计“为什么”的视频。<br>人工整理的种子片单 v0。<br>快捷键 <b>/</b> 搜索 · <b>R</b> 随机</div></div>`;
+}
+
+/* ---------- pages ---------- */
+const $=s=>document.querySelector(s);
+const LONGS=new Set(["长片","纪录片"]);
+function render(){
+  document.body.classList.toggle("watchmode",route==="watch"&&!query);
+  renderGuide();
+  const m=$("#main");
+  if(query){const L=applyFilters(V.filter(matches));m.innerHTML=filtersHTML()+`<div class="psub">“${esc(query)}” 的 ${L.length} 个结果</div>`+gridHTML(L);return}
+  switch(route){
+    case "home": m.innerHTML=filtersHTML()+gridHTML(applyFilters(V.filter(v=>!disliked.has(v.id)))); break;
+    case "longs": m.innerHTML=`<div class="ph">长片</div><div class="psub">Shorts 的反面。完整的发布会、纪录片和长篇演讲，适合留出一整段时间看。</div>`+filtersHTML()+gridHTML(applyFilters(V.filter(v=>LONGS.has(v.k)||["PUv66718DII","t9HmOz8H0qI","wLb9g_8r-mE","2ZCc4k_IV5w","7cKbPLzNYws"].includes(v.id)))); break;
+    case "liked": m.innerHTML=`<div class="ph">收藏</div><div class="psub">收藏只保存在这台设备的浏览器里，不需要账号。</div>`+gridHTML(V.filter(v=>liked.has(v.id))); break;
+    case "later": m.innerHTML=`<div class="ph">稍后观看</div><div class="psub">先存着，有空再看。</div>`+gridHTML(V.filter(v=>later.has(v.id))); break;
+    case "history": m.innerHTML=`<div class="ph">历史记录</div><div class="psub">你在这里打开过的视频，最近的在前。</div>`+gridHTML(hist.map(id=>V.find(v=>v.id===id)).filter(Boolean)); break;
+    case "categories": m.innerHTML=`<div class="ph">主题</div><div class="psub">每个主题都是一个关于设计的问题。</div><div class="cats">${CH.map(c=>`<button class="cat" style="--cbg:${c.bg}" data-topic="${c.id}"><div><b>${c.q}</b><p>${c.d}</p></div><span>${c.name} · ${V.filter(v=>v.tags.includes(c.id)).length} 部</span></button>`).join("")}</div>`; break;
+    case "playlists": m.innerHTML=`<div class="ph">片单</div><div class="psub">按问题组织、按顺序看的路线。</div>`+CH.map(c=>{const L=V.filter(v=>v.tags.includes(c.id));return `<div style="margin:24px 0 12px;display:flex;align-items:baseline;gap:12px"><b style="font-size:18px">${c.q}</b><button class="fclear" data-topic="${c.id}">查看全部 ${L.length} 部</button></div><div class="grid">${L.slice(0,4).map(vcard).join("")}</div>`}).join(""); break;
+    case "settings": m.innerHTML=`<div class="ph">设置</div><div class="set">
+      <div class="row"><div><b>深色模式</b><p>跟随这台设备记住。</p></div><button class="pill ${document.documentElement.classList.contains('dark')?'on':''}" id="sdark">${document.documentElement.classList.contains('dark')?'已开启':'已关闭'}</button></div>
+      <div class="row"><div><b>导出数据</b><p>复制全部 ${V.length} 条视频的 JSON，交给 agent 做你自己的版本。</p></div><button class="pill" id="sexport">复制 JSON</button></div>
+      <div class="row"><div><b>清除历史记录</b><p>收藏和稍后观看会保留。</p></div><button class="pill" id="shist">清除</button></div></div>`; break;
+    case "watch": renderWatch(); break;
+  }
+}
+function matches(v){const hay=[v.t,v.cn,v.who,v.ch,v.n,v.k,...v.tags.map(t=>CHM[t].name)].join(" ").toLowerCase();return query.toLowerCase().split(/\s+/).every(w=>hay.includes(w))}
+
+const CAN_EMBED=/^https?:$/.test(location.protocol);
+/* ---------- 中文字幕：用 YouTube 自带字幕 + 自动翻译 ---------- */
+const SUBS=[["zh-Hans","简体中文"],["zh-Hant","繁體中文"],["orig","原文字幕"],["off","关闭字幕"]];
+let subPref=store.get("dt_sub","zh-Hans");
+let ytApi=null, ytPlayer=null;
+function loadYTApi(){
+  if(ytApi) return ytApi;
+  ytApi=new Promise((res,rej)=>{
+    if(window.YT&&YT.Player) return res(YT);
+    const prev=window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady=()=>{prev&&prev();res(YT)};
+    const sc=document.createElement("script");sc.src="https://www.youtube.com/iframe_api";sc.onerror=()=>{ytApi=null;rej(new Error("api"))};
+    document.head.appendChild(sc);
+    setTimeout(()=>rej(new Error("timeout")),8000);
+  });
+  return ytApi;
+}
+function applySubs(){
+  const p=ytPlayer; if(!p||!p.getOption) return;
+  try{
+    if(subPref==="off"){p.unloadModule&&p.unloadModule("captions");return}
+    p.loadModule&&p.loadModule("captions");
+    const list=p.getOption("captions","tracklist")||[];
+    if(!list.length) return;
+    if(subPref==="orig"){p.setOption("captions","track",{languageCode:list[0].languageCode});return}
+    const want=subPref==="zh-Hans"?/^zh(-CN|-SG|-Hans)?$/i:/^zh-(TW|HK|Hant)$/i;
+    const native=list.find(t=>want.test(t.languageCode));
+    if(native){p.setOption("captions","track",{languageCode:native.languageCode});return}
+    const base=list.find(t=>t.kind!=="asr")||list[0];
+    p.setOption("captions","track",{languageCode:base.languageCode,translationLanguage:{languageCode:subPref}});
+  }catch(e){}
+}
+const embedParams=()=>`autoplay=1&rel=0&modestbranding=1&playsinline=1&hl=zh-CN${subPref==="off"?"":"&cc_load_policy=1"}${/^zh/.test(subPref)?"&cc_lang_pref="+subPref:""}`;
+function startPlayer(v){
+  const box=$("#player");
+  box.innerHTML='<div id="ytp"></div>';
+  loadYTApi().then(YT=>{
+    let tries=0;
+    ytPlayer=new YT.Player("ytp",{host:"https://www.youtube-nocookie.com",videoId:v.id,
+      playerVars:{autoplay:1,rel:0,modestbranding:1,playsinline:1,hl:"zh-CN",cc_load_policy:subPref==="off"?0:1,cc_lang_pref:/^zh/.test(subPref)?subPref:undefined},
+      events:{onReady:()=>applySubs(),onApiChange:()=>applySubs(),
+        onStateChange:e=>{if(e.data===1&&tries<3){tries++;setTimeout(applySubs,600)}}}});
+  }).catch(()=>{
+    ytPlayer=null;
+    box.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${v.id}?${embedParams()}" title="${esc(v.t)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+  });
+}
+let embedBlocked=false;
+document.addEventListener("securitypolicyviolation",e=>{if(/frame/.test(e.violatedDirective||e.effectiveDirective||"")){embedBlocked=true;const p=document.querySelector(".player");if(p&&p.querySelector("iframe"))renderWatch()}});
+function renderWatch(){
+  const v=V.find(x=>x.id===watching); if(!v){route="home";return render()}
+  const c=CHM[v.tags[0]];
+  const pool=V.filter(x=>x.id!==v.id&&!disliked.has(x.id));
+  const next=pool.filter(x=>x.tags.some(t=>v.tags.includes(t))).concat(pool.filter(x=>!x.tags.some(t=>v.tags.includes(t)))).slice(0,16);
+  const embed=CAN_EMBED&&!embedBlocked;
+  $("#main").innerHTML=`<div class="watch"><div class="wl">
+    <div class="player" id="player" style="${cvars(v)}">${motif(v)}<span class="cap">${esc(v.who)}</span><span class="big">${v.y||""}</span>${frame(v.id,"hqdefault").replace('data-id','data-tried="1" data-id')}
+      <div class="ptop"><b>${esc(v.t)}</b><span>${esc(v.ch)}</span></div>
+      ${embed?`<button class="pbtn" id="pplay" aria-label="播放">${ico("play")}</button>`:`<a class="pbtn" href="${yt(v.id)}" target="_blank" rel="noopener" aria-label="在 YouTube 播放">${ico("play")}</a><div class="pnote">${embedBlocked?"此页面无法站内播放":"本地文件无法站内播放"}，点击去 YouTube 看 · 中文字幕：设置 → 字幕 → 自动翻译 → 中文</div>`}
+    </div>
+    <div class="wt">${esc(v.cn)}</div>
+    <div class="wrow">
+      <div class="wch"><b>${esc(v.ch)}</b><span>${esc(v.who)}${v.y?` · ${v.y}`:''}</span></div>
+      <div class="seg"><button id="wlike" class="${liked.has(v.id)?'on':''}">${ico(liked.has(v.id)?"thumb":"thumbo")}赞</button><button id="wdis" class="${disliked.has(v.id)?'on':''}" aria-label="不感兴趣">${ico("thumbd")}</button></div>
+      <label class="subsel" title="字幕">${ico("cc")}<select id="wsub" aria-label="字幕">${SUBS.map(([k,l])=>`<option value="${k}" ${subPref===k?"selected":""}>${l}</option>`).join("")}</select></label>
+      <button class="pill ${later.has(v.id)?'on':''}" id="wlater">${ico("clock")}稍后观看</button>
+      <a class="pill" href="${yt(v.id)}" target="_blank" rel="noopener">${ico("ext")}YouTube</a>
+    </div>
+    <div class="desc">
+      <div class="dm">${[v.y,v.k,...v.tags.map(t=>CHM[t].name)].filter(Boolean).map(esc).join(" · ")}</div>
+      <div>${esc(v.t)}</div>
+      <div class="why">${esc(v.n)}</div>
+      <div class="think"><b>看之前想一想：</b>${esc(c.t)}</div>
+      <div class="dtags">${v.tags.map(t=>`<button data-topic="${t}">${CHM[t].name}</button>`).join("")}<button data-q="${esc(v.who)}">更多 ${esc(v.who)}</button></div>
+    </div>
+  </div><div class="wr">${next.map(x=>`<button class="mv" data-v="${x.id}">${thumb(x,"th")}<div style="min-width:0"><div class="tt">${esc(x.cn)}</div><div class="ch">${esc(x.ch)}</div><div class="mt">${esc(x.who)}${x.y?' • '+x.y:''}</div></div></button>`).join("")}</div></div>`;
+  ytPlayer=null;
+  const pp=$("#pplay"); if(pp) pp.onclick=()=>startPlayer(v);
+  $("#wsub").onchange=e=>{subPref=e.target.value;store.set("dt_sub",subPref);if(ytPlayer)applySubs();else if($("#player iframe"))startPlayer(v);toast("字幕："+SUBS.find(x=>x[0]===subPref)[1])};
+  /* re-render buttons without restarting a playing video */
+  const keep=()=>{const p=$("#player");if(!(p&&p.querySelector("#ytp,iframe")))return renderWatch();const kids=[...p.childNodes],pl=ytPlayer;renderWatch();$("#player").replaceChildren(...kids);ytPlayer=pl};
+  $("#wlike").onclick=()=>{liked.has(v.id)?liked.delete(v.id):(liked.add(v.id),disliked.delete(v.id));save();keep()};
+  $("#wdis").onclick=()=>{disliked.has(v.id)?disliked.delete(v.id):(disliked.add(v.id),liked.delete(v.id));save();keep();if(disliked.has(v.id))toast("已标记不感兴趣，首页不再显示这部")};
+  $("#wlater").onclick=()=>{later.has(v.id)?later.delete(v.id):later.add(v.id);save();keep()};
+}
+function openVideo(id){watching=id;hist=[id,...hist.filter(x=>x!==id)].slice(0,100);save();query="";$("#q").value="";route="watch";const v=V.find(x=>x.id===id);const h="#w-"+v.i;if(location.hash!==h)history.pushState(null,"",h);render();window.scrollTo(0,0)}
+function go(r){route=r;document.body.classList.toggle("watchmode",r==="watch");if(location.hash!=="#"+r)history.replaceState(null,"","#"+r);render();window.scrollTo(0,0)}
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),2000)}
+function toggleDark(){const on=document.documentElement.classList.toggle("dark");store.set("dt_dark",on);if(route==="settings")render()}
+async function exportData(){const data=JSON.stringify({channels:CH.map(({id,name,q})=>({id,name,question:q})),videos:V.map(({i,...v})=>({...v,url:"https://www.youtube.com/watch?v="+v.id}))},null,2);try{await navigator.clipboard.writeText(data);toast("已复制 "+V.length+" 条视频的 JSON")}catch(e){toast("浏览器不允许访问剪贴板")}}
+function about(){$("#dlg").innerHTML=`<h2>关于 DesignTube</h2>
+  <p>受 Karpathy 的 HackerTube 启发：一个只收录“设计背后的为什么”的视频站。没有算法推荐，没有点击诱饵缩略图，不需要账号。</p>
+  <p>收录五个问题：设计如何影响人的行为？为什么某种审美会在特定时代流行？技术变革如何改变视觉语言？一个品牌如何建立辨识度？为什么有些设计能跨越时代？另有设计师演讲、乔布斯、AI 与审美三个专题。</p>
+  <p>当前是人工整理的种子片单 v0，下一步会接入设计社区的反复推荐数据。</p>
+  <p>快捷键：<kbd>/</kbd> 搜索 · <kbd>R</kbd> 随机一部 · <kbd>Esc</kbd> 关闭</p>
+  <button class="pill" id="dclose" style="margin-top:8px">知道了</button>`;$("#scrim").classList.add("open");$("#dclose").onclick=()=>$("#scrim").classList.remove("open")}
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target;
+  const hl=t.closest("a[data-h]");if(hl){const id=hl.dataset.h;hist=[id,...hist.filter(x=>x!==id)].slice(0,100);save();return}
+  const fo=t.closest("[data-fk]");if(fo){const k=fo.dataset.fk,val=fo.dataset.fv;if(k==="sort"){F.sort=val;if(val==="shuffle")shuffleSeed=Math.random()}else F[k]=F[k]===val?null:val;render();return}
+  if(t.closest("#ftoggle")){fopen=!fopen;render();return}
+  if(t.closest("#fclear")){Object.assign(F,{decade:null,type:null,topic:null,feat:null,sort:"best"});render();return}
+  const tp=t.closest("[data-topic]");if(tp){Object.assign(F,{decade:null,type:null,feat:null,sort:"best",topic:tp.dataset.topic});fopen=true;query="";$("#q").value="";go("home");return}
+  const dq=t.closest("[data-q]");if(dq){query=dq.dataset.q;$("#q").value=query;route="home";render();window.scrollTo(0,0);return}
+  const r=t.closest("[data-r]");if(r){query="";$("#q").value="";go(r.dataset.r);return}
+  const v=t.closest("[data-v]");if(v){e.preventDefault();openVideo(v.dataset.v);return}
+  if(t.closest("#sdark")){toggleDark();return}
+  if(t.closest("#sexport")){exportData();return}
+  if(t.closest("#shist")){hist=[];save();toast("历史记录已清除");return}
+  if(t.id==="scrim")$("#scrim").classList.remove("open");
+});
+$("#menu").onclick=()=>document.body.classList.toggle("mini");
+$("#dark").onclick=toggleDark;
+$("#help").onclick=about;
+$("#sform").onsubmit=e=>{e.preventDefault();query=$("#q").value.trim();if(route==="watch")route="home";render()};
+$("#q").addEventListener("input",e=>{query=e.target.value.trim();if(route==="watch"&&query)route="home";render()});
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT"){if(e.key==="Escape")e.target.blur();return}
+  if(e.key==="/"){e.preventDefault();$("#q").focus()}
+  else if(e.key==="r"||e.key==="R")openVideo(V[Math.floor(Math.random()*V.length)].id);
+  else if(e.key==="Escape")$("#scrim").classList.remove("open");
+});
+function fromHash(){const h=location.hash.slice(1);const m=/^w-(\d+)$/.exec(h);if(m&&V[+m[1]]){watching=V[+m[1]].id;route="watch"}else route=NAV.some(n=>n[0]===h)?h:"home";render();window.scrollTo(0,0)}
+window.addEventListener("hashchange",fromHash);window.addEventListener("popstate",fromHash);
+fromHash();
+</script>
+</body>
+</html>
