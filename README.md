@@ -1,4 +1,3 @@
-# designtube
 # DesignTube
 
 **看懂设计背后的为什么。**
@@ -39,38 +38,6 @@ DesignTube 是一个给设计师的 YouTube：不教软件、不追热点，只�
 index.html    站点本身（数据、样式、脚本都在里面）
 vercel.json   Vercel 部署配置
 ```
-
-## 部署
-
-**Vercel**：在 [vercel.com/new](https://vercel.com/new) 导入这个仓库，框架选 Other，构建命令留空，点 Deploy。之后每次推送到 `main` 都会自动重新部署。
-
-**本地预览**：
-
-```bash
-npx serve .
-```
-
-注意：直接双击打开 `index.html` 也能浏览，但站内播放和中文字幕需要通过 `http(s)` 访问。
-
-## 添加视频
-
-视频数据在 `index.html` 里的 `V` 数组中，每条格式如下：
-
-```js
-{
-  id: "RlQEoJaLQRA",                      // YouTube 视频 ID
-  t: "The three ways that good design makes you happy",  // 原标题
-  cn: "好设计让人快乐的三种方式",           // 中文标题
-  who: "Don Norman",                       // 讲者
-  ch: "TED",                               // 出处 / 频道
-  y: 2003,                                 // 年份（可省略）
-  k: "TED",                                // 类型
-  tags: ["talks", "behavior"],             // 主题，第一个决定封面配色
-  n: "推荐理由……"                          // 为什么值得看
-}
-```
-
-主题 ID：`behavior` 设计与行为 · `era` 时代与审美 · `tech` 技术与视觉语言 · `brand` 品牌与辨识度 · `timeless` 跨越时代 · `talks` 设计师演讲 · `jobs` 乔布斯 · `ai` AI 与审美
 
 ## 路线图
 
